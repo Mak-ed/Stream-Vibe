@@ -1,0 +1,110 @@
+import './Select.scss'
+import getIdFromTitle from "@/utils/getIdFromTitle";
+import classNames from "classnames";
+
+const Select = (props) => {
+  const {
+    id = getIdFromTitle(props.label),
+    label,
+    isLabelHidden = true,
+    /**
+     * Array<{
+     *   value: string,
+     *   isSelected?: boolean,
+     * }>
+     */
+    options = [],
+    fieldControlClassName,
+  } = props
+
+  const IDs = {
+    originalControl: id,
+    label: `${id}-label`,
+    dropdown: `${id}-dropdown`,
+  }
+
+  const selectedOptionIndex = options.findIndex(({ isSelected }) => isSelected) ?? options[0]
+  const selectedOption = options[selectedOptionIndex]
+
+  const getOptionId = (index) => {
+    return `${id}-option-${index}`
+  }
+
+  return (
+    <div
+      className='select'
+      data-js-select=''
+    >
+      <label
+        className={classNames('select__label', {
+          'visually-hidden': isLabelHidden,
+        })}
+        id={IDs.label}
+        htmlFor={IDs.originalControl}
+      >
+        {label}
+      </label>
+      <select
+        className={classNames('select__original-control', fieldControlClassName,)}
+        id={IDs.originalControl}
+        tabIndex={-1}
+        defaultValue={selectedOption.value}
+        aria-hidden={true}
+        data-js-select-original-control=''
+      >
+        {options.map(({ value }, index) => (
+          <option value={value} key={index}>
+            {value}
+          </option>
+        ))}
+      </select>
+      <div className="select__body">
+        <div
+          className={classNames("select__button", fieldControlClassName)}
+          role='combobox'
+          aria-expanded={false}
+          aria-haspopup='listbox'
+          aria-controls={IDs.dropdown}
+          aria-labelledby={IDs.label}
+          aria-activedescendant={getOptionId(selectedOptionIndex)}
+          tabIndex={0}
+          data-js-select-button=''
+        >
+          {selectedOption.value}
+        </div>
+        <div
+          className="select__dropdown"
+          id={IDs.dropdown}
+          role='listbox'
+          aria-labelledby={IDs.label}
+          data-js-select-dropdown=''
+        >
+          {options.map((option, index) => {
+            const {
+              value,
+              isSelected = false,
+            } = option
+
+            return (
+              <div
+                className={classNames('select__option', {
+                  'is-selected': isSelected,
+                  'is-current': isSelected,
+                })}
+                id={getOptionId(index)}
+                role='option'
+                aria-selected={isSelected}
+                data-js-select-option=''
+                key={index}
+              >
+                {value}
+              </div>
+            )
+          })}
+        </div>
+      </div>
+    </div>
+  )
+}
+
+export default Select
